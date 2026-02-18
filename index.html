@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriTrack – Scientific Nutrition Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-dark: #0a2e14;
+      --green-mid: #1a5c2a;
+      --green-vivid: #22c55e;
+      --green-bright: #4ade80;
+      --green-glow: #86efac;
+      --black: #050e07;
+      --surface: #0d1f12;
+      --surface2: #112518;
+      --text: #e8f5ec;
+      --muted: #7aab8a;
+      --accent: #00ff88;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 5vw;
+      background: rgba(5, 14, 7, 0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(34, 197, 94, 0.08);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--green-vivid);
+      letter-spacing: -0.5px;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .logo-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    nav ul { list-style: none; display: flex; gap: 2.5rem; }
+    nav ul a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--green-vivid); }
+
+    .btn-nav {
+      background: var(--green-vivid);
+      color: var(--black);
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .btn-nav:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 0 20px rgba(0,255,136,0.35); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 0 5vw;
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(22,197,94,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(0,255,136,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 40% at 50% 0%, rgba(26,92,42,0.15) 0%, transparent 50%);
+    }
+
+    /* animated grid lines */
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(34,197,94,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(60px); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 600px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      border-radius: 100px;
+      padding: 0.35rem 1rem;
+      font-size: 0.8rem;
+      color: var(--green-bright);
+      font-weight: 500;
+      margin-bottom: 2rem;
+      animation: fadeSlideUp 0.6s ease both;
+    }
+
+    .hero-badge span { width: 6px; height: 6px; background: var(--green-bright); border-radius: 50%; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+      animation: fadeSlideUp 0.7s 0.1s ease both;
+    }
+
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--green-vivid), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+      animation: fadeSlideUp 0.7s 0.2s ease both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      animation: fadeSlideUp 0.7s 0.3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--green-vivid), var(--accent));
+      color: var(--black);
+      text-decoration: none;
+      padding: 0.9rem 2rem;
+      border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.25s;
+      box-shadow: 0 0 30px rgba(0,255,136,0.2);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(0,255,136,0.4); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--green-bright);
+      text-decoration: none;
+      padding: 0.9rem 1.8rem;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.25s;
+    }
+    .btn-secondary:hover { background: rgba(34,197,94,0.08); border-color: var(--green-vivid); }
+
+    .hero-image {
+      position: absolute;
+      right: 4vw;
+      bottom: 0;
+      width: 42%;
+      max-width: 520px;
+      z-index: 2;
+      animation: floatUp 1s 0.4s ease both;
+      filter: drop-shadow(0 0 60px rgba(34,197,94,0.15));
+    }
+
+    .hero-image img { width: 100%; display: block; }
+
+    /* floating stats */
+    .stat-card {
+      position: absolute;
+      background: rgba(13, 31, 18, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 16px;
+      padding: 0.9rem 1.2rem;
+      z-index: 3;
+      animation: floatBob 4s ease-in-out infinite;
+    }
+
+    .stat-card .val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green-vivid);
+    }
+
+    .stat-card .lbl { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    .stat1 { right: 46%; top: 22%; animation-delay: 0s; }
+    .stat2 { right: 7%; top: 28%; animation-delay: 1.5s; }
+    .stat3 { right: 5%; bottom: 35%; animation-delay: 0.75s; }
+
+    @keyframes floatBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes floatUp { from { opacity:0; transform: translateY(40px); } to { opacity:1; transform: translateY(0); } }
+    @keyframes fadeSlideUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+    /* ─── SECTION SHARED ─── */
+    section { padding: 7rem 5vw; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--green-vivid);
+      margin-bottom: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 24px; height: 2px;
+      background: var(--green-vivid);
+      border-radius: 2px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 1.2rem;
+    }
+
+    h2 .g { background: linear-gradient(135deg, var(--green-vivid), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 520px;
+      font-weight: 300;
+    }
+
+    /* ─── FEATURES STRIP ─── */
+    .features-strip {
+      background: var(--surface);
+      border-top: 1px solid rgba(34,197,94,0.08);
+      border-bottom: 1px solid rgba(34,197,94,0.08);
+      padding: 2rem 5vw;
+      overflow: hidden;
+    }
+
+    .strip-track {
+      display: flex;
+      gap: 4rem;
+      animation: scrollStrip 20s linear infinite;
+      white-space: nowrap;
+    }
+
+    .strip-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .strip-item svg { color: var(--green-vivid); }
+
+    @keyframes scrollStrip {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ─── APP FEATURES ─── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid rgba(34,197,94,0.1);
+      border-radius: 24px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.35s ease;
+      cursor: default;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green-vivid), transparent);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(34,197,94,0.3);
+      transform: translateY(-4px);
+      background: var(--surface2);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(34,197,94,0.06);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-card.large {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .feature-icon {
+      width: 52px; height: 52px;
+      background: rgba(34,197,94,0.12);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+    }
+
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.7rem;
+      letter-spacing: -0.5px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    .feature-card img {
+      width: 100%;
+      border-radius: 16px;
+      filter: drop-shadow(0 10px 30px rgba(0,0,0,0.4));
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(34,197,94,0.12);
+      color: var(--green-bright);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      padding: 0.2rem 0.7rem;
+      border-radius: 100px;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── NUTRITION SCIENCE ─── */
+    .science {
+      background: var(--surface);
+      border-top: 1px solid rgba(34,197,94,0.08);
+    }
+
+    .science-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .science-visual {
+      position: relative;
+    }
+
+    .macro-chart {
+      background: var(--surface2);
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: 24px;
+      padding: 2rem;
+    }
+
+    .macro-chart h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+    }
+
+    .macro-row {
+      margin-bottom: 1.2rem;
+    }
+
+    .macro-row-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      font-size: 0.85rem;
+    }
+
+    .macro-row-top .name { color: var(--text); font-weight: 500; }
+    .macro-row-top .val { color: var(--green-vivid); font-weight: 700; }
+
+    .bar-track {
+      height: 8px;
+      background: rgba(34,197,94,0.1);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      animation: barGrow 1.5s ease both;
+    }
+
+    @keyframes barGrow {
+      from { width: 0; }
+    }
+
+    .bar-protein { background: linear-gradient(90deg, #22c55e, #4ade80); width: 72%; }
+    .bar-carbs   { background: linear-gradient(90deg, #16a34a, #22c55e); width: 58%; }
+    .bar-fiber   { background: linear-gradient(90deg, #15803d, #4ade80); width: 85%; }
+    .bar-water   { background: linear-gradient(90deg, #38bdf8, #7dd3fc); width: 45%; }
+    .bar-cals    { background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 63%; }
+
+    .mini-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .mini-card {
+      background: var(--surface);
+      border: 1px solid rgba(34,197,94,0.12);
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .mini-card .num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--green-vivid);
+    }
+
+    .mini-card .unit { font-size: 0.7rem; color: var(--muted); margin-left: 2px; }
+    .mini-card .desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* ─── SCREENSHOTS ─── */
+    .screenshots {
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .screenshots-header {
+      max-width: 560px;
+      margin: 0 auto 4rem;
+    }
+
+    .screens-row {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .screen-item {
+      flex: 0 0 auto;
+      width: 220px;
+      transition: transform 0.35s ease;
+    }
+
+    .screen-item:hover { transform: translateY(-12px) scale(1.04); }
+
+    .screen-item.center { width: 260px; transform: translateY(-20px); }
+    .screen-item.center:hover { transform: translateY(-32px) scale(1.04); }
+
+    .screen-item img {
+      width: 100%;
+      border-radius: 20px;
+      filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5)) drop-shadow(0 0 30px rgba(34,197,94,0.12));
+    }
+
+    .screen-caption {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ─── DOWNLOAD ─── */
+    .download {
+      background: var(--surface);
+      border-top: 1px solid rgba(34,197,94,0.08);
+    }
+
+    .download-box {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(0,255,136,0.04) 100%);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 32px;
+      padding: 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-box::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .download-box h2 { margin-bottom: 1rem; }
+    .download-box p {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 300;
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      background: linear-gradient(135deg, var(--green-vivid), var(--accent));
+      color: var(--black);
+      text-decoration: none;
+      padding: 1rem 2.5rem;
+      border-radius: 100px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      transition: all 0.25s;
+      box-shadow: 0 0 40px rgba(0,255,136,0.25);
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-download:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(0,255,136,0.4); }
+
+    /* ─── DEVELOPER ─── */
+    .developer { background: var(--black); }
+
+    .dev-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .dev-photo-wrap {
+      position: relative;
+    }
+
+    .dev-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 28px;
+      background: var(--surface);
+      border: 2px solid rgba(34,197,94,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .dev-photo-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(34,197,94,0.06), transparent 70%);
+    }
+
+    .dev-avatar-icon {
+      font-size: 5rem;
+      filter: grayscale(0.3);
+    }
+
+    .dev-photo-placeholder p {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0 2rem;
+    }
+
+    .dev-photo-placeholder strong {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-vivid);
+      margin-bottom: 0.3rem;
+    }
+
+    .dev-badge-wrap {
+      position: absolute;
+      bottom: -1rem;
+      right: -1rem;
+      background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+      border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 14px;
+      padding: 0.8rem 1.2rem;
+    }
+
+    .dev-badge-wrap .role {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--green-vivid);
+    }
+
+    .dev-badge-wrap .sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    .dev-content .tag { margin-bottom: 1rem; }
+
+    .dev-content h2 { margin-bottom: 0.5rem; }
+
+    .dev-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--green-vivid), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1.2rem;
+    }
+
+    .dev-content p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .skill-chip {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 100px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.8rem;
+      color: var(--green-bright);
+      font-weight: 500;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 0.6rem 1.2rem;
+      border: 1px solid rgba(34,197,94,0.15);
+      border-radius: 100px;
+      transition: all 0.25s;
+    }
+
+    .social-link:hover {
+      color: var(--green-vivid);
+      border-color: rgba(34,197,94,0.4);
+      background: rgba(34,197,94,0.06);
+      transform: translateY(-2px);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid rgba(34,197,94,0.1);
+      padding: 2.5rem 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer .logo { font-size: 1.1rem; }
+
+    footer p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    footer .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    footer .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+
+    footer .footer-links a:hover { color: var(--green-vivid); }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .hero-image { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-card.large { grid-column: span 1; grid-template-columns: 1fr; }
+      .science-inner { grid-template-columns: 1fr; }
+      .dev-inner { grid-template-columns: 1fr; }
+      .screens-row { flex-wrap: wrap; }
+      nav ul { display: none; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      NutriTrack
+    </div>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#science">Science</a></li>
+      <li><a href="#app">App</a></li>
+      <li><a href="#developer">Developer</a></li>
+    </ul>
+    <a href="https://drive.google.com/file/d/1SGjoVX6R-bOcUGkVWdbTJO8YlfHhdPSa/view?usp=drive_link" target="_blank" class="btn-nav">Download APK ↓</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span></span>
+        Scientific Nutrition Intelligence
+      </div>
+      <h1>Fuel Your Body<br>with <span class="highlight">Science</span></h1>
+      <p class="hero-sub">
+        Track calories, protein, carbs, fiber & water intake with precision. Personalized meal plans built on food science not guesswork.
+      </p>
+      <div class="hero-cta">
+        <a href="https://drive.google.com/file/d/1SGjoVX6R-bOcUGkVWdbTJO8YlfHhdPSa/view?usp=drive_link" target="_blank" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+          Download Free
+        </a>
+        <a href="#features" class="btn-secondary">
+          Explore Features →
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      <img src="images/hero-runner.png" alt="NutriTrack App" />
+    </div>
+
+    <div class="stat-card stat1">
+      <div class="val">2,450</div>
+      <div class="lbl">kcal daily goal</div>
+    </div>
+    <div class="stat-card stat2">
+      <div class="val">98%</div>
+      <div class="lbl">accuracy rating</div>
+    </div>
+    <div class="stat-card stat3">
+      <div class="val">150g</div>
+      <div class="lbl">protein tracked</div>
+    </div>
+  </section>
+
+  <!-- STRIP -->
+  <div class="features-strip">
+    <div class="strip-track">
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Calorie Tracking
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Macro Analysis
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 6a6 6 0 0 1 0 12"/><circle cx="12" cy="12" r="2"/></svg>
+        Meal Planning
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Food Science Based
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Water Tracking
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Fiber Goals
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Custom Meal Plans
+      </div>
+      <!-- duplicate for infinite loop -->
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Calorie Tracking
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Macro Analysis
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 0 20"/><path d="M12 6a6 6 0 0 1 0 12"/><circle cx="12" cy="12" r="2"/></svg>
+        Meal Planning
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Food Science Based
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Water Tracking
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Fiber Goals
+      </div>
+      <div class="strip-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Custom Meal Plans
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="section-label">Core Features</div>
+    <h2>Everything your nutrition<br>journey needs</h2>
+
+    <div class="features-grid">
+      <!-- Card 1 - Large -->
+      <div class="feature-card large reveal">
+        <div>
+          <div class="tag">⚡ Smart Tracking</div>
+          <h3>Scientific Calorie & Macro Intelligence</h3>
+          <p>NutriTrack uses validated food science algorithms to calculate your precise daily needs for calories, protein, carbohydrates, fiber, and water based on your body metrics, activity level, and personal goals.</p>
+          <br/>
+          <p>No generic targets every number is computed specifically for you using established nutritional science frameworks.</p>
+        </div>
+        <img src="images/feature-nutrition.png" alt="Nutrition Tracking" />
+      </div>
+
+      <!-- Card 2 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">🏋️</div>
+        <h3>Workout-Aware Nutrition</h3>
+        <p>Track strength training, cardio, and more. NutriTrack adjusts your macro targets dynamically based on your training load and exercise patterns for optimal recovery and performance.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">🥗</div>
+        <h3>Customizable Meal Plans</h3>
+        <p>Build personalized meal plans from a scientifically curated food database. Swap ingredients, adjust portions, and meet your exact macro targets every meal, every day.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="feature-card reveal" style="position:relative; overflow:hidden;">
+        <div class="feature-icon">💧</div>
+        <h3>Hydration Tracking</h3>
+        <p>Monitor daily water intake with smart reminders calibrated to your body weight, climate, and activity. Optimal hydration is foundational to nutrition NutriTrack makes sure you never fall behind.</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="feature-card reveal">
+        <div class="feature-icon">📊</div>
+        <h3>Progress Analytics</h3>
+        <p>Visualize trends in your nutrition data over time. Understand how your diet is evolving with beautiful charts and actionable insights that keep you on track toward your health goals.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCIENCE SECTION -->
+  <section class="science" id="science">
+    <div class="science-inner">
+      <div class="science-visual reveal">
+        <div class="macro-chart">
+          <h4>Today's Nutrition Overview</h4>
+
+          <div class="macro-row">
+            <div class="macro-row-top"><span class="name">Calories</span><span class="val">1,840 / 2,450 kcal</span></div>
+            <div class="bar-track"><div class="bar-fill bar-cals"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-row-top"><span class="name">Protein</span><span class="val">112 / 155g</span></div>
+            <div class="bar-track"><div class="bar-fill bar-protein"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-row-top"><span class="name">Carbohydrates</span><span class="val">210 / 360g</span></div>
+            <div class="bar-track"><div class="bar-fill bar-carbs"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-row-top"><span class="name">Fiber</span><span class="val">29 / 34g</span></div>
+            <div class="bar-track"><div class="bar-fill bar-fiber"></div></div>
+          </div>
+          <div class="macro-row">
+            <div class="macro-row-top"><span class="name">Water</span><span class="val">1.4 / 3.1L</span></div>
+            <div class="bar-track"><div class="bar-fill bar-water"></div></div>
+          </div>
+        </div>
+
+        <div class="mini-cards">
+          <div class="mini-card">
+            <div class="num">BMR<span class="unit"></span></div>
+            <div class="desc">Basal Metabolic Rate calculated</div>
+          </div>
+          <div class="mini-card">
+            <div class="num">TDEE<span class="unit"></span></div>
+            <div class="desc">Total Daily Energy Expenditure</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="section-label">Food Science</div>
+        <h2>Nutrition built on<br><span class="g">real science</span></h2>
+        <p class="section-desc" style="margin-bottom: 1.5rem;">
+          NutriTrack isn't just another calorie counter. It applies validated nutritional science including Harris-Benedict equations, AMDR guidelines, and WHO fiber recommendations to calculate what your body actually needs.
+        </p>
+        <p class="section-desc" style="margin-bottom: 1.5rem;">
+          Every user receives unique targets derived from body weight, height, age, sex, and physical activity level. As your body changes, your targets update automatically.
+        </p>
+        <p class="section-desc">
+          Meal plans are built around macro balance, micronutrient density, and food synergy ensuring you don't just hit numbers, but genuinely nourish your body.
+        </p>
+        <div class="skills-row" style="margin-top: 2rem;">
+          <span class="skill-chip">Harris-Benedict Equation</span>
+          <span class="skill-chip">AMDR Guidelines</span>
+          <span class="skill-chip">WHO Standards</span>
+          <span class="skill-chip">Food Synergy</span>
+          <span class="skill-chip">Glycemic Index</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP SCREENSHOTS -->
+  <section class="screenshots" id="app">
+    <div class="screenshots-header reveal">
+      <div class="section-label" style="justify-content: center;">App Preview</div>
+      <h2>Powerful features,<br>beautiful interface</h2>
+      <p class="section-desc" style="margin: 1rem auto 0; text-align: center;">
+        Designed for real people who take their health seriously. Every screen is built for clarity, speed, and motivation.
+      </p>
+    </div>
+
+    <div class="screens-row">
+      <div class="screen-item reveal">
+        <img src="images/feature-squat.png" alt="Workout Tracking" />
+        <div class="screen-caption">Workout + Nutrition Link</div>
+      </div>
+      <div class="screen-item center reveal">
+        <img src="images/hero-runner.png" alt="Dashboard" />
+        <div class="screen-caption">Live Dashboard</div>
+      </div>
+      <div class="screen-item reveal">
+        <img src="images/feature-lifting.png" alt="Strength Tracking" />
+        <div class="screen-caption">Strength & Macros</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD SECTION -->
+  <section class="download" id="download">
+    <div class="download-box reveal">
+      <div class="section-label" style="justify-content: center; margin-bottom: 1.5rem;">Get the App</div>
+      <h2>Start your scientific<br><span class="g">nutrition journey today</span></h2>
+      <p>Download NutriTrack for free and take the first step toward evidence-based health. No subscriptions, no hidden costs just science.</p>
+      <a href="https://drive.google.com/file/d/1SGjoVX6R-bOcUGkVWdbTJO8YlfHhdPSa/view?usp=drive_link" target="_blank" class="btn-download">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg>
+        Download APK — Free
+      </a>
+    </div>
+  </section>
+
+  <!-- DEVELOPER -->
+  <section class="developer" id="developer">
+    <div class="dev-inner">
+      <div class="dev-photo-wrap reveal">
+        <div class="dev-photo-placeholder">
+          <img src="images/thilina.png" alt="Thilina Samarasinghe" style="width:100%; height:100%; object-fit:cover; border-radius:26px;" />
+        </div>
+        <div class="dev-badge-wrap">
+          <div class="role">BEng Software Engineer</div>
+          <div class="sub">Innovative Engineer</div>
+        </div>
+      </div>
+
+      <div class="dev-content reveal">
+        <div class="tag">👋 About the Developer</div>
+        <div class="dev-name">Thilina Samarasinghe</div>
+        <p>
+          I'm a <strong style="color: var(--green-vivid);">BEng Software Engineer</strong> with a passion for building technology that genuinely improves people's lives. NutriTrack was born from my belief that the gap between nutritional science and everyday behavior can be closed through thoughtful, intelligent software.
+        </p>
+        <p>
+          I approach every project with an engineer's rigor and an innovator's curiosity obsessing over the details that matter while keeping the big picture in sharp focus. From mobile applications to scalable backend systems, I love crafting solutions that are as elegant under the hood as they are on the surface.
+        </p>
+        <p>
+          NutriTrack is my vision of what a nutrition app can be: not a tool that just counts, but one that <em style="color: var(--green-bright);">understands</em>.
+        </p>
+
+        <div class="skills-row">
+          <span class="skill-chip">Android Development</span>
+          <span class="skill-chip">Web development</span>
+          <span class="skill-chip">SEO</span>
+          <span class="skill-chip">UI/UX Design</span>
+          <span class="skill-chip">Machine Learning</span>
+          <span class="skill-chip">Backend Systems</span>
+          <span class="skill-chip">Data Science</span>
+        </div>
+
+        <div class="social-links">
+          <a href="https://github.com/Thilina-Samarasinghe" target="_blank" class="social-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+          <a href="https://www.linkedin.com/in/thilina-samarasinghe-a82145279/" target="_blank" class="social-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>
+          <a href="https://thilina-samarasinghe-portfolio.vercel.app/" target="_blank" class="social-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Portfolio
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="logo">
+      <div class="logo-dot"></div>
+      NutriTrack
+    </div>
+    <p>© 2025 Thilina Samarasinghe. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="https://github.com/Thilina-Samarasinghe" target="_blank">GitHub</a>
+      <a href="https://www.linkedin.com/in/thilina-samarasinghe-a82145279/" target="_blank">LinkedIn</a>
+      <a href="https://thilina-samarasinghe-portfolio.vercel.app/" target="_blank">Portfolio</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => observer.observe(el));
+
+    // Nav scroll style
+    window.addEventListener('scroll', () => {
+      document.querySelector('nav').style.background =
+        window.scrollY > 50 ? 'rgba(5,14,7,0.95)' : 'rgba(5,14,7,0.7)';
+    });
+
+    // Animate bars on scroll
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+            bar.style.animation = 'none';
+            bar.offsetHeight;
+            bar.style.animation = '';
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.macro-chart').forEach(el => barObserver.observe(el));
+  </script>
+</body>
+</html>
